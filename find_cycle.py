@@ -28,37 +28,6 @@ def format_matrix(mat_1):
     return m1
 
 
-def get_c3_cycles(cycles):
-    c3_cycles = []
-
-    for i in cycles:
-        if len(i) == 3:
-            c3_cycles.append(i)
-
-    return c3_cycles
-
-
-def naive_method(matrix):
-    start = time.time()
-
-    M = np.matrix(matrix)
-
-    G = nx.convert_matrix.from_numpy_array(M)
-
-    all_cycles = nx.cycle_basis(G)
-
-    c3_cycles = get_c3_cycles(all_cycles)
-
-    end = time.time()
-
-    if c3_cycles:
-        print(f"Wszystkie cykle c3 w grafie : {c3_cycles}")
-    else:
-        print("Graf nie ma cykli c3!")
-
-    print(f"Metoda naiwna zajela: {end-start}s")
-
-
 def to_dict(matrix):
     adj_dict = {}
     k = -1
@@ -75,6 +44,40 @@ def to_dict(matrix):
                     adj_dict[k] = [n_bor]
 
     return adj_dict
+
+
+def naive_method_alg(adj_dict):
+    c3_cycles = []
+    c3_sorted = []
+    for k in adj_dict:
+        c1 = k
+        for neighbour in adj_dict[k]:
+            c2 = neighbour
+            for next in adj_dict[c2]:
+                if c1 in adj_dict[next]:
+                    c3_cycles.append((c1, c2, next))
+
+    #sort every tuple to get no duplicates
+    for i in c3_cycles:
+        sorted_t = tuple(sorted(i))
+        c3_sorted.append(sorted_t)
+
+    return set(c3_sorted)
+
+
+def naive_method(matrix):
+    start = time.time()
+
+    c3_cycles = naive_method_alg(to_dict(matrix))
+
+    end = time.time()
+
+    if c3_cycles:
+        print(f"Wszystkie cykle c3 w grafie : {c3_cycles}")
+    else:
+        print("Graf nie ma cykli c3!")
+
+    print(f"Metoda naiwna zajela: {end-start}s")
 
 
 def dfs(u, color, adj_list):
